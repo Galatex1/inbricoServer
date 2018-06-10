@@ -1,0 +1,23 @@
+{
+  "name": "inbricoserver",
+  "version": "1.0.0",
+  "keywords": [
+    "util",
+    "functional",
+    "server",
+    "client",
+    "browser"
+  ],
+  "author": "galatex",
+  "contributors": [],
+  "dependencies": {
+    "express": "^4.16.3"
+  },
+  "scripts": {
+    "start": "node server.js"
+  },
+  "description": "RESTful server for inbrico",
+  "main": "server.js",
+  "devDependencies": {},
+  "license": "ISC"
+}
