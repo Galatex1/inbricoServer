@@ -11,7 +11,9 @@
   "author": "galatex",
   "contributors": [],
   "dependencies": {
-    "express": "^4.16.3"
+    "express": "^4.16.3",
+    "express-reload": "^1.1.0",
+    "mysql": "^2.15.0"
   },
   "scripts": {
     "start": "node server.js"
