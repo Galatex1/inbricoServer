@@ -14,7 +14,7 @@ conn.connect(function(err) {
   console.log("Connected to DB!");
 });
 
-//new commit sabdasdkshbadjkhasd sadasdasdasdas
+//new commit 
 
 app.use(express.urlencoded());
 app.use(express.json());
