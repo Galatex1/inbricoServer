@@ -30,27 +30,6 @@ app.listen(8000, () => {
   console.log('Server started!');
 });
 
-app.route('/api/cats/:name').get((req, res) => {
-  const requestedCatName = req.params['name'];
-  
-        let sql = "SELECT * FROM player";
-
-    conn.query(sql, function (err, result) {
-        if (err)
-        {
-            console.log("error: " + result);
-        }
-        else 
-        {            
-                result.forEach(function(item, index){
-                   console.log("username: ", item.username);
-                });
-        }   
-    });
-  
-  res.send({ name: requestedCatName+"whatever" });
-});
-
 app.post('/',function(request,response, next){});
 
 app.post('/login',function(request,response, next){
