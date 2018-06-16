@@ -54,7 +54,7 @@ app.post('/',function(request,response, next){});
 app.post('/login',function(request,response, next){
     
     
-    
+    console.log(request.body.username);
     let sql = "SELECT * FROM player WHERE username ='"+request.body.username+"'";
     conn.query(sql, function (err, result) {
         //console.log(result);
