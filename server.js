@@ -34,9 +34,12 @@ app.post('/',function(request,response, next){});
 
 app.post('/login',function(request,response, next){
     
+    var waitTill = new Date(new Date().getTime() + 0.5 * 1000);
+    while(waitTill > new Date()){}
+
+    let sql = "SELECT ID, username, password, center, (SELECT count(*) FROM Map WHERE Player_ID = player.ID) as tilecount FROM player WHERE username ='"+request.body.username+"'";
+
     
-    console.log(request.body.username);
-    let sql = "SELECT * FROM player WHERE username ='"+request.body.username+"'";
     conn.query(sql, function (err, result) {
         //console.log(result);
         if (err)
@@ -46,7 +49,9 @@ app.post('/login',function(request,response, next){
         else 
         {            
             if(result.length === 1)
+            {
                 response.json(result[0]); 
+            }
             else 
                response.json({error: "Wrong username or password"}); 
         }   
@@ -60,10 +65,10 @@ app.post('/login',function(request,response, next){
 app.post('/map',function(request,response, next){
     
     let player_ID = request.body.ID;
-    let tilesX = 10;
-    let tilesY = 10;
+    let tilesX = request.body.tilesX;
+    let tilesY = request.body.tilesY;
     
-    let sql = "SELECT Type_ID, X, Y, Player_ID, player.username, (SELECT X FROM Map JOIN player ON Map.ID = player.center WHERE player.ID = "+player_ID+") as subX,"
+    let sql = "SELECT Map.ID, Type_ID, X, Y, Player_ID, player.username, (SELECT X FROM Map JOIN player ON Map.ID = player.center WHERE player.ID = "+player_ID+") as subX,"
                     + "(SELECT Y FROM Map JOIN player ON Map.ID = player.center WHERE player.ID = "+player_ID+") as subY "
                     + "FROM Map LEFT JOIN player ON Map.Player_ID = player.ID HAVING (Map.X BETWEEN (subX - "+tilesX+") AND (subX + "+tilesX+")) AND (Map.Y BETWEEN (subY - "+tilesY+" ) AND (subY + "+tilesY+")) ORDER BY Y, X";
     
@@ -75,6 +80,39 @@ app.post('/map',function(request,response, next){
         }
         else 
         {               
+            response.json(result);
+        }   
+    });
+    
+    
+    
+});
+
+let index = 0;
+
+app.post('/tiles',function(request,response, next){
+    
+    let first = request.body.which;
+    let second = first == "X" ?  "Y" : "X";
+    let value = request.body.value;
+    let from = request.body.from;
+    let to = request.body.to;
+    
+    let sql = "";
+                    
+    sql = "SELECT Map.ID, Type_ID, X, Y, Player_ID, player.username FROM Map LEFT JOIN player ON Map.Player_ID = player.ID WHERE "+first+" ="+value+" AND ("+second+" BETWEEN "+from+" AND "+to+")  ORDER BY Y, X";
+
+    
+    conn.query(sql, function (err, result) {
+        
+        if (err)
+        {
+            console.log("error: " + err);
+        }
+        else 
+        {       
+            console.log("Sending tiles", index);
+            index++;        
             response.json(result);
         }   
     });
