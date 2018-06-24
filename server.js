@@ -1,30 +1,34 @@
 const express = require('express');
 const app = express();
-var mysql = require('mysql');
+var DB = require('./database.js');
 
-var conn = mysql.createConnection({
-  host: "localhost",
-  user: "root",
-  password: "root",
-  database: "inbrico"
-});
 
-conn.connect(function(err) {
-  if (err) throw err;
-  console.log("Connected to DB!");
-});
+require('./routes')(app);
+const cors = require('cors');
+ 
 
-//new commit sdfsdfsdfsfsd
+var path = __dirname + '/server.js';
+
+
+    DB.perRow("SELECT ID FROM player LIMIT 1", null)
+    .on('result', function(result){
+        console.log("Connection to database successful");
+    })
+    .on('error', function(err){
+        console.log("error: " + err); 
+    })
+
+
+
+var corsOptions = {
+  origin: '*',
+  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
+}
 
 app.use(express.urlencoded());
 app.use(express.json());
-app.use(function(req, res, next){
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.header('Access-Control-Allow-Credentials', true);
-    next();
-});
+app.use(cors(corsOptions));
+
 
 app.listen(8000, () => {
   console.log('Server started!');
@@ -37,108 +41,25 @@ app.post('/login',function(request,response, next){
     var waitTill = new Date(new Date().getTime() + 0.5 * 1000);
     while(waitTill > new Date()){}
 
-    let sql = "SELECT ID, username, password, center, (SELECT count(*) FROM Map WHERE Player_ID = player.ID) as tilecount FROM player WHERE username ='"+request.body.username+"'";
+    let sql = "SELECT ID, username, password, center, (SELECT count(*) FROM map WHERE player_id = player.ID) as tilecount FROM player WHERE username ='"+request.body.username+"'";
 
-    
-    conn.query(sql, function (err, result) {
-        //console.log(result);
-        if (err)
+    console.log(request.body.username)
+
+    DB.query(sql, null, function(result){
+
+        if(result.length === 1)
         {
-            console.log("error: " + err);
+            response.json(result[0]); 
         }
         else 
-        {            
-            if(result.length === 1)
-            {
-                response.json(result[0]); 
-            }
-            else 
-               response.json({error: "Wrong username or password"}); 
-        }   
+           response.json({error: "Wrong username or password"});
+
     });
     
     
     
-});
-
-
-app.post('/map',function(request,response, next){
-    
-    let player_ID = request.body.ID;
-    let tilesX = request.body.tilesX;
-    let tilesY = request.body.tilesY;
-    
-    let sql = "SELECT Map.ID, Type_ID, X, Y, Player_ID, player.username, (SELECT X FROM Map JOIN player ON Map.ID = player.center WHERE player.ID = "+player_ID+") as subX,"
-                    + "(SELECT Y FROM Map JOIN player ON Map.ID = player.center WHERE player.ID = "+player_ID+") as subY "
-                    + "FROM Map LEFT JOIN player ON Map.Player_ID = player.ID HAVING (Map.X BETWEEN (subX - "+tilesX+") AND (subX + "+tilesX+")) AND (Map.Y BETWEEN (subY - "+tilesY+" ) AND (subY + "+tilesY+")) ORDER BY Y, X";
-    
-    conn.query(sql, function (err, result) {
-       // console.log(result);
-        if (err)
-        {
-            console.log("error: " + err);
-        }
-        else 
-        {               
-            response.json(result);
-        }   
-    });
-    
-    
-    
-});
-
-let index = 0;
-
-app.post('/tiles',function(request,response, next){
-    
-    let first = request.body.which;
-    let second = first == "X" ?  "Y" : "X";
-    let value = request.body.value;
-    let from = request.body.from;
-    let to = request.body.to;
-    
-    let sql = "";
-                    
-    sql = "SELECT Map.ID, Type_ID, X, Y, Player_ID, player.username FROM Map LEFT JOIN player ON Map.Player_ID = player.ID WHERE "+first+" ="+value+" AND ("+second+" BETWEEN "+from+" AND "+to+")  ORDER BY Y, X";
-
-    
-    conn.query(sql, function (err, result) {
-        
-        if (err)
-        {
-            console.log("error: " + err);
-        }
-        else 
-        {       
-            console.log("Sending tiles", index);
-            index++;        
-            response.json(result);
-        }   
-    });
-    
-    
     
 });
 
 
-app.get('/', function(req, res){
-   
-   
-      // Website you wish to allow to connect
-    res.setHeader('Access-Control-Allow-Origin', '*');
 
-    // Request methods you wish to allow
-    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
-
-    // Request headers you wish to allow
-    res.setHeader('Access-Control-Allow-Headers', 'X-Requested-With,content-type');
-
-    // Set to true if you need the website to include cookies in the requests sent
-    // to the API (e.g. in case you use sessions)
-    res.setHeader('Access-Control-Allow-Credentials', true);
-   
-    console.log("GET CALLED");
-    res.send("HELLO WORLD");
-    
-});
