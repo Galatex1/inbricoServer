@@ -24,18 +24,18 @@ module.exports = function(app){
   
       const reqPlayer = req.params['name'];
 
-      let inserts = ["ID", reqPlayer];
+      let inserts = ["player.ID", reqPlayer];
      
       if( isNaN(parseInt(reqPlayer)) )
       {
-          inserts = ["username", reqPlayer];
+          inserts = ["player.username", reqPlayer];
       }
 
-      let sql = "SELECT ID, username, center, (SELECT count(*) FROM map WHERE player_id = player.ID) as tilecount FROM player WHERE ?? = ?";
+      //let sql = "SELECT ID, username, center, (SELECT count(*) FROM map WHERE player_id = player.ID) as tilecount FROM player WHERE ?? = ?";
+      let sql = "SELECT player.ID, player.username, player.center, (SELECT count(*) FROM map WHERE player_id = player.ID) as tilecount, (SELECT alliance.ID FROM alliance INNER JOIN members ON alliance.ID = members.alliance_id WHERE members.player = player.ID) as allianceID FROM player WHERE ?? = ? ";
+
 
       sql = mysql.format(sql, inserts);
-  
-
 
      DB.query(sql, null,function(data){
       res.json(data);
@@ -90,9 +90,31 @@ module.exports = function(app){
   app.get('/player/:name/alliance', function(req, res){   
   
     const reqPlayer = req.params['name'];
-    let sql = "SELECT alli.ID as ID, alli.name, alli.abbreviation as short FROM player LEFT JOIN (SELECT ID, alliance.name, alliance.abbreviation, members.player FROM alliance INNER JOIN members ON alliance.ID = members.alliance_id WHERE members.player = ID) as alli ON alli.player = alli.ID WHERE player.username = ? ";
+    let sql = "SELECT alli.ID as alliance_ID FROM player LEFT JOIN (SELECT ID, alliance.name, alliance.abbreviation, members.player FROM alliance INNER JOIN members ON alliance.ID = members.alliance_id WHERE members.player = ID) as alli ON alli.player = alli.ID WHERE player.username = ? ";
 
     const inserts = [reqPlayer];
+    sql = mysql.format(sql, inserts);
+
+    DB.query(sql, null, function(result){
+      res.json(result);  
+    });
+
+  });
+
+  app.get('/player/:name/storage', function(req, res){   
+
+    const reqPlayer = req.params['name'];
+
+    let inserts = ["player.ID", reqPlayer];
+   
+    if( isNaN(parseInt(reqPlayer)) )
+    {
+        inserts = ["player.username", reqPlayer];
+    }
+
+
+    let sql = "SELECT wood, stone, iron, gold, max FROM storage INNER JOIN player ON player.ID = player_id WHERE ?? = ?";
+
     sql = mysql.format(sql, inserts);
 
     DB.query(sql, null, function(result){

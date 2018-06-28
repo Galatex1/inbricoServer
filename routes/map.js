@@ -28,14 +28,13 @@ module.exports = function(app){
 
     let index = 0;
 
-    app.get('/map/tiles',function(request,response, next){
+    app.get('/map/part',function(request,response, next){
     
     let first = request.query.which ? request.query.which : "y";
     let second = first == "x" ?  "y" : "x";
     let value = request.query.value ? request.query.value : 0;
     let from = request.query.from ? request.query.from : parseInt(value);
     let to = request.query.to ? request.query.to : parseInt(value);
-    let slice = request.query.slice ? request.query.slice : false;
 
     let inserts = [first, value, second, from, to];
                     
