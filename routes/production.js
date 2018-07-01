@@ -7,7 +7,7 @@ module.exports = function(app){
     app.get('/production/:type', function(req, res){   
   
         const type = req.params['type'];
-        let sql = "SELECT level, production, workers FROM production WHERE type_id = ?";
+        let sql = "SELECT level, production, workers FROM production WHERE build_id = ?";
     
         const inserts = [type];
         sql = mysql.format(sql, inserts);
@@ -22,8 +22,8 @@ module.exports = function(app){
   
         const type = req.params['type'] ? req.params['type'] : 3;
         const level = req.params['level'] ? req.params['level'] : 1;
-        let sql = "SELECT level, production, workers FROM production WHERE type_id = ? AND level = ?";
-    
+        let sql = "SELECT level, production, workers FROM production WHERE build_id = ? AND level = ?";
+  
         const inserts = [type, level];
         sql = mysql.format(sql, inserts);
     
