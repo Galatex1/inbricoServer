@@ -15,7 +15,7 @@ module.exports = function(app){
             inserts = ["player.username", player_ID, "player.username", player_ID, tilesX, tilesX, tilesY, tilesY];
         }
 
-        sql = "SELECT map.ID, type_id, x, y, player_id, player.username, (SELECT x FROM map JOIN player ON map.ID = player.center WHERE ?? = ?) as subX, (SELECT y FROM map JOIN player ON Map.ID = player.center WHERE ?? = ?) as subY FROM map LEFT JOIN player ON map.player_id = player.ID HAVING (map.x BETWEEN (subX - ?) AND (subX + ?)) AND (map.y BETWEEN (subY - ? ) AND (subY + ?)) ORDER BY y, x";   
+        sql = "SELECT map.ID, type_id, x, y, player_id, build, level, workers, player.username, (SELECT x FROM map JOIN player ON map.ID = player.center WHERE ?? = ?) as subX, (SELECT y FROM map JOIN player ON Map.ID = player.center WHERE ?? = ?) as subY FROM map LEFT JOIN player ON map.player_id = player.ID HAVING (map.x BETWEEN (subX - ?) AND (subX + ?)) AND (map.y BETWEEN (subY - ? ) AND (subY + ?)) ORDER BY y, x";   
         
         sql = mysql.format(sql, inserts);
         
@@ -38,7 +38,7 @@ module.exports = function(app){
 
     let inserts = [first, value, second, from, to];
                     
-    let sql = "SELECT map.ID, type_id, x, y, player_id, player.username FROM map LEFT JOIN player ON map.player_id = player.ID WHERE ?? = ? AND (?? BETWEEN ? AND ?)  ORDER BY y, x";
+    let sql = "SELECT map.ID, type_id, x, y, player_id, build, level, workers, player.username FROM map LEFT JOIN player ON map.player_id = player.ID WHERE ?? = ? AND (?? BETWEEN ? AND ?)  ORDER BY y, x";
 
     sql = mysql.format(sql, inserts);
 
@@ -63,7 +63,7 @@ module.exports = function(app){
         if(ID == 0)
             inserts = ["map.x", x, "map.y", y];
                         
-        let sql = "SELECT map.ID, type_id, x, y, player_id, player.username FROM map LEFT JOIN player ON map.player_id = player.ID WHERE ?? = ? AND ?? =  ? LIMIT 1";
+        let sql = "SELECT map.ID, type_id, x, y, player_id, build, level, workers, player.username FROM map LEFT JOIN player ON map.player_id = player.ID WHERE ?? = ? AND ?? =  ? LIMIT 1";
     
         sql = mysql.format(sql, inserts);
 
