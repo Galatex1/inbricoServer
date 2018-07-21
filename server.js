@@ -71,6 +71,88 @@ app.post('/login',function(request,response, next){
 
 require('./routes')(app);
 
+let index = 0;
+
+function updateLoop()
+{
+    processBuildingQueue().then((result)=>{
+        //console.log(result);
+    })
+    //console.log("Update", index);
+    index++;
+}
+
+function getActualQueue(){
+        
+    return new Promise(function(resolve, reject) {
+
+        let sql = "SELECT player_id, tile_id, build, level FROM building_queue WHERE TIMEDIFF(complete , NOW()) <= 0";
+
+        DB.query(sql, null, function(result){
+            resolve(result);  
+        });
+    })
+}
+
+
+function deleteProccessedQueue(tile_id, build, level){
+        
+    return new Promise(function(resolve, reject) {
+
+        let sql = "DELETE FROM building_queue WHERE tile_id = ? AND build = ? AND level = ?";
+        
+        let inserts = [tile_id, build, level];
+
+        sql = mysql.format(sql, inserts);
+
+        DB.query(sql, null, function(result){
+            resolve(result);  
+        });
+    })
+}
+
+function updateBuilding(level, tile_id, player_id, build) {
+    return new Promise(function(resolve, reject) {
+
+        let sql = "UPDATE map SET level = ? WHERE ID = ? AND player_id = ? AND build = ?";
+
+        let inserts = [level, tile_id, player_id, build];
+
+        sql = mysql.format(sql, inserts);
+
+        DB.query(sql, null, function(result){
+            resolve(result);  
+        });
+ 
+    })
+}
+
+function processBuildingQueue(){
+        
+    return new Promise(function(resolve, reject) {
+
+        getActualQueue().then((res)=>{
+
+            if(res.length > 0)
+                updateBuilding(res[0]['level'], res[0]['tile_id'], res[0]['player_id'], res[0]['build']).then(()=>{
+                    
+                    console.log(res[0]['tile_id'], res[0]['build'], res[0]['level']);
+                    deleteProccessedQueue(res[0]['tile_id'], res[0]['build'], res[0]['level']).then((resp)=>{
+                        resolve(resp);
+                    })
+
+                });
+            else
+                resolve("Nothing to proccess");
+
+
+
+        })
+    })
+}
+
+let intervalLoop = setInterval(()=> updateLoop(), 2000);
+
 
 
 

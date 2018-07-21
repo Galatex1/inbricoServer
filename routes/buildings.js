@@ -15,15 +15,39 @@ module.exports = function(app){
     
       });
 
+      app.get('/building/:hex', function(req, res){   
+
+        const hex = req.params['hex'];
+
+    
+        getNextBuilding(hex).then((result)=>{
+          res.json(result); 
+        })
+    
+      });
+
       app.get('/queue/:hex/:player', function(req, res){   
 
         const hexID = req.params['hex'];
         const playerID = req.params['player'];
-        const build = req.params['build'];
-        const level = req.params['level'];
     
         upgradeBuilding(hexID, playerID).then((result)=>{
           res.json(result); 
+        })
+    
+      });
+
+      app.get('/queue/:hex/:player/:build', function(req, res){   
+
+        const hexID = req.params['hex'];
+        const playerID = req.params['player'];
+        const build = req.params['build'];
+    
+        chooseBuilding(hexID, playerID, build).then((result)=>{
+            
+            upgradeBuilding(hexID, playerID).then((result)=>{
+                res.json(result); 
+            }) 
         })
     
       });
@@ -37,7 +61,36 @@ module.exports = function(app){
         })
     
       });
+
+
+        function getNextBuilding(hexID){
+        
+        return new Promise(function(resolve, reject) {
     
+            getTile(hexID, 0, 0).then((tile)=>{
+
+                isUpgrading(hexID).then((res)=>{
+
+                    let uplevel = tile[0]['level']+1;
+                    if(res.length == 1)
+                        uplevel = res[0]['level']+1;
+    
+                    let storage = "SELECT id, name, level, wood, stone, iron, gold, time FROM costs INNER JOIN buildings ON buildings.id = build_id WHERE buildings.id = ? AND level = ?";
+                    let inserts = [tile[0]['build'], uplevel];
+            
+                    storage = mysql.format(storage, inserts);
+              
+                    DB.query(storage, null, function(result){
+                      resolve(result);  
+                    });
+    
+                })
+
+            })
+    
+        })
+    
+      }
     
       function getBuilding(build, level){
         
@@ -55,6 +108,24 @@ module.exports = function(app){
     
         })
     
+      }
+
+      function updatePlayerResources(player_id, woodDiff, stoneDiff, ironDiff, goldDiff)
+      {
+        return new Promise(function(resolve, reject) {
+    
+    
+            let inserts = [woodDiff, stoneDiff, ironDiff, goldDiff, woodDiff, stoneDiff, ironDiff, goldDiff, player_id];
+                               
+            let sql = "UPDATE storage SET wood = wood - ?, stone = stone - ?, iron = iron - ?, gold = gold - ? WHERE (wood - ?) >= 0 AND (stone - ?) >= 0 AND (iron - ?) >= 0 AND (gold - ?) >= 0 AND  player_id = ? ";
+        
+            sql = mysql.format(sql, inserts);
+    
+            DB.query(sql, null, function(result){             
+                resolve(result.affectedRows);  
+            });
+    
+        })
       }
 
       function getTile(ID, x, y){
@@ -79,6 +150,42 @@ module.exports = function(app){
 
     }
 
+    function chooseBuilding(hexID, playerID, build){
+        
+        return new Promise(function(resolve, reject) {
+    
+    
+            let inserts = [build, playerID, hexID];  
+                            
+            let sql = "UPDATE map SET build = ?, level = 0 WHERE player_id = ? AND ID =  ?";
+        
+            sql = mysql.format(sql, inserts);
+    
+            DB.query(sql, null, function(result){             
+                resolve(result);  
+            });
+    
+        })
+
+    }
+
+    function isUpgrading(hexID){
+        return new Promise(function(resolve, reject) {
+            
+            let inserts = [hexID];
+                            
+            let sql = "SELECT level FROM building_queue WHERE tile_id = ? ORDER BY level DESC LIMIT 1 ";
+        
+            sql = mysql.format(sql, inserts);
+    
+            DB.query(sql, null, function(result){            
+                resolve(result);  
+            });
+
+        })
+    }
+
+
       function upgradeBuilding(hexID, playerID){
         
         return new Promise(function(resolve, reject) {
@@ -87,22 +194,38 @@ module.exports = function(app){
 
                 if(result[0]['player_id'] == playerID)
                  {
-                        getBuilding(result[0]['build'], result[0]['level']).then((res) =>{
+                        isUpgrading(hexID).then((QueueLevel)=>{
+                            
+                            let uplevel = (result[0]['level']+1);
+                            if(QueueLevel.length == 1)
+                                uplevel = QueueLevel[0]['level']+1;
 
+                            console.log("level:", uplevel);
 
-                        let sql = "INSERT INTO building_queue (player_id, tile_id, build, level, complete) VALUE(?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL TIME_TO_SEC(?) SECOND))";
-
-                        let inserts = [playerID, hexID, result[0]['build'], (res[0]['level']+1), res[0]['time']];
-                
-                        sql = mysql.format(sql, inserts);
-                
-                        DB.query(sql, null, function(result){
-                            resolve(result);  
-                        });
-            
+                            getBuilding(result[0]['build'], uplevel).then((res) =>{               
+                        
+                                updatePlayerResources(playerID, res[0]['wood'], res[0]['stone'], res[0]['iron'], res[0]['gold']).then((val)=>{
         
+                                    if(val > 0)
+                                    {
+                                    
+                                        let sql = "INSERT INTO building_queue (player_id, tile_id, build, level, complete) VALUE(?, ?, ?, ?, DATE_ADD(NOW(), INTERVAL TIME_TO_SEC(?) SECOND))";
         
-                    });
+                                        let inserts = [playerID, hexID, result[0]['build'], res[0]['level'], res[0]['time']];
+                                
+                                        sql = mysql.format(sql, inserts);
+                                
+                                        DB.query(sql, null, function(result){
+                                            resolve(result);  
+                                        });
+                                    }
+                                    else
+                                        resolve("Not Enough Resources");
+                                })
+        
+                            });
+
+                        })
                 }
                 else
                     resolve("This user can't build there");
