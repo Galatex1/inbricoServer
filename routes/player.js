@@ -248,13 +248,13 @@ module.exports = function(app){
       }
 
 
-      let sql = "SELECT SUM(production.production * map.workers) as perSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND build = 1 "
+      let sql = "SELECT SUM(production.production * map.workers) as perSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND (build = 1 OR build = 7) "
       + "UNION ALL "
-      + "SELECT SUM(production.production * map.workers) as ironPerSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND build = 3 "
+      + "SELECT SUM(production.production * map.workers) as ironPerSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND (build = 3 OR build = 7) "
       + "UNION ALL "
-      + "SELECT SUM(production.production * map.workers) as stonePerSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND build = 4 "
+      + "SELECT SUM(production.production * map.workers) as stonePerSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND (build = 4 OR build = 7) "
       + "UNION ALL "
-      + "SELECT SUM(production.production * map.workers) as goldPerSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND build = 5 ";
+      + "SELECT SUM(production.production * map.workers) as goldPerSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND (build = 5 OR build = 7) ";
 
       sql = mysql.format(sql, inserts);
 
