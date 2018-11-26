@@ -62,6 +62,18 @@ module.exports = function(app){
     
       });
 
+      app.get('/queue/delete/:tile_id/:build/:level', function(req, res){   
+
+        const tile_id = req.params['tile_id'];
+        const build = req.params['build'];
+        const level = req.params['level'];
+    
+        deleteQueueItem(tile_id, build, level).then((result)=>{
+          res.json(result); 
+        })
+    
+      });
+
 
         function getNextBuilding(hexID){
         
@@ -286,6 +298,21 @@ module.exports = function(app){
             let sql = "SELECT name, player_id, tile_id, build, level, start, complete, queued, TIME_TO_SEC(TIMEDIFF(complete, start)) as time, TIME_TO_SEC(TIMEDIFF(complete, NOW())) as remain FROM building_queue LEFT JOIN player ON player_id = player.ID LEFT JOIN buildings ON buildings.id = build WHERE ?? = ? ORDER BY complete ASC";
 
             let inserts = transformPlayer(player);
+    
+            sql = mysql.format(sql, inserts);
+    
+            DB.query(sql, null, function(result){
+                resolve(result);  
+            });
+        })
+    }
+
+    function deleteQueueItem(tile_id, build, level){
+        return new Promise(function(resolve, reject) {
+
+            let sql = "DELETE FROM building_queue WHERE tile_id = ? AND build = ? AND level = ? LIMIT 1";
+
+            let inserts = [tile_id, build, level];
     
             sql = mysql.format(sql, inserts);
     
