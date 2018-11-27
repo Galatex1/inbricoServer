@@ -133,6 +133,37 @@ module.exports = function(app){
   });
 
 
+  app.get('/player/:name/buildings', function(req, res){   
+
+    const reqPlayer = req.params['name'];
+
+    getBuildings(reqPlayer).then((result)=>{
+      res.json(result); 
+    })
+
+  });
+
+
+
+  function getBuildings(player){
+        
+    return new Promise(function(resolve, reject) {
+
+
+        let sql = "SELECT build, name, map.level, production, count(*) as count FROM map INNER JOIN buildings ON buildings.id = build INNER JOIN production ON build_id = build AND map.level = production.level  WHERE player_id = ? GROUP BY  map.level, build ORDER BY map.level DESC";
+        let inserts = [player];
+
+        sql = mysql.format(sql, inserts);
+  
+        DB.query(sql, null, function(result){
+          resolve(result);  
+        });
+
+    })
+
+  }
+
+
   function getStorage(player){
     
     return new Promise(function(resolve, reject) {

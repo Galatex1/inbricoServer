@@ -36,7 +36,7 @@ CREATE TABLE `buildings` (
 
 LOCK TABLES `buildings` WRITE;
 /*!40000 ALTER TABLE `buildings` DISABLE KEYS */;
-INSERT INTO `buildings` VALUES (1,'Sawmill'),(2,'Windmill'),(3,'Iron mine'),(4,'Stone quary'),(5,'City'),(6,'Harbor'),(7,'Base');
+INSERT INTO `buildings` VALUES (1,'Sawmill'),(2,'Windmill'),(4,'Iron mine'),(3,'Stone quary'),(5,'City'),(6,'Harbor'),(7,'Base');
 /*!40000 ALTER TABLE `buildings` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
