@@ -143,6 +143,17 @@ module.exports = function(app){
 
   });
 
+  app.post('/player/:name/production/save/', function(req, res){   
+
+    const production = req.body.production;
+    const reqPlayer = req.params['name'];
+
+    Promise.all(saveProduction(reqPlayer, production)).then((result)=>{
+      res.json(result); 
+    })
+
+  });
+
 
 
   function getBuildings(player){
@@ -161,6 +172,45 @@ module.exports = function(app){
 
     })
 
+  }
+
+  function saveProduction(player, production)
+  {
+    let _promises = [];
+
+    production.forEach(p => {
+
+      p.buildings.forEach(prod => {
+          
+        _promises.push(
+              new Promise(function(resolve, reject) {
+
+                let diff = prod.current % prod.count;
+                let workers = Math.floor(prod.current / prod.count);
+
+                let sql = "UPDATE map SET workers = ? WHERE player_id = ? AND build = ? AND level = ?";
+                let inserts = [workers, player, prod.build, prod.level];
+        
+                if(diff != 0)
+                {
+                  sql = "UPDATE map SET workers = ? WHERE player_id = ? AND build = ? AND level = ?;UPDATE map SET workers = ? WHERE player_id = ? AND build = ? AND level = ? LIMIT 1;";
+                  inserts = [workers, player, prod.build, prod.level, (workers+diff), player, prod.build, prod.level];
+                }
+
+                sql = mysql.format(sql, inserts);
+
+                DB.query(sql, null, function(result){
+                  resolve(result);  
+                });
+
+              })
+          )
+
+        });
+
+    });
+
+    return _promises;
   }
 
 

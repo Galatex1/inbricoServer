@@ -5,7 +5,8 @@ var pool = mysql.createPool({
     host: "localhost",
     user: "root",
     password: "root",
-    database: "inbrico"
+    database: "inbrico",
+    multipleStatements: true
 });
 
 
