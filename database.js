@@ -2,10 +2,10 @@ var mysql   = require("mysql");
 
 var pool = mysql.createPool({
     connLimit : 10,
-    host: process.env.CLEARDB_HOST,
-    user: process.env.CLEARDB_USERNAME,
-    password: process.env.CLEARDB_PASSWORD,
-    database: process.env.CLEARDB_DATABASE,
+    host: process.env.DB_HOST,
+    user: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_DATABASE,
     multipleStatements: true
 });
 
@@ -52,7 +52,7 @@ var DB = (function(){
                 if(conn)
                     conn.release();
                 callback(null, err);
-                throw err;
+                console.log( err);
             }
 
             var q = conn.query(query, params, function (err, rows) {
@@ -73,7 +73,7 @@ var DB = (function(){
                 callback(null, err);
                 if(conn)
                     conn.release();
-                throw err;
+                console.log( err);
             });
         });
     };

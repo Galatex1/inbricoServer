@@ -6,6 +6,10 @@ var DB = require('./database.js');
 
 const cors = require('cors');
 
+app.use(cors(corsOptions)); 
+app.use(express.urlencoded());
+app.use(express.json());
+
 
     DB.perRow("SELECT ID FROM player LIMIT 1", null)
     .on('result', function(result){
@@ -22,11 +26,8 @@ var corsOptions = {
   optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
 }
 
-app.use(cors()); 
-app.use(express.urlencoded());
-app.use(express.json());
 
-//app.use(express.static(path.join(__dirname, '../')));
+
 // app.use(function(req, res, next){
 //     res.header("Access-Control-Allow-Origin", "*");
 //     res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
