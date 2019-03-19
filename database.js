@@ -5,7 +5,8 @@ var pool = mysql.createPool({
     host: "localhost",
     user: "root",
     password: "root",
-    database: "inbrico"
+    database: "inbrico",
+    multipleStatements: true
 });
 
 
@@ -18,14 +19,15 @@ var DB = (function(){
         pool.getConnection(function (err, conn) {
             if (err) {
                 if (eventNameIndex.error) {
-                    eventNameIndex.error();
+                    eventNameIndex.error(); n
                 }
             }
             if (conn) { 
                 var q = conn.query.apply(conn, queryArgs);
 
                 q.on('end', function () {
-                    conn.release();
+                    if(conn)
+                        conn.release();
                 });
 
                 events.forEach(function (args) {
@@ -47,25 +49,30 @@ var DB = (function(){
     function _query(query, params, callback) {
         pool.getConnection(function (err, conn) {
             if (err) {
-                conn.release();
+                if(conn)
+                    conn.release();
                 callback(null, err);
                 throw err;
             }
 
             var q = conn.query(query, params, function (err, rows) {
-                conn.release();
+               
                 if (!err) {
                     callback(rows);
                 }
                 else {
-                    callback(null, err);
+                    callback(null, err);            
                 }
-
+                
+                if(conn)
+                    conn.release();
             });
 
             q.on('error', function (err) {
-                conn.release();
+                
                 callback(null, err);
+                if(conn)
+                    conn.release();
                 throw err;
             });
         });

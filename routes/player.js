@@ -133,6 +133,87 @@ module.exports = function(app){
   });
 
 
+  app.get('/player/:name/buildings', function(req, res){   
+
+    const reqPlayer = req.params['name'];
+
+    getBuildings(reqPlayer).then((result)=>{
+      res.json(result); 
+    })
+
+  });
+
+  app.post('/player/:name/production/save/', function(req, res){   
+
+    const production = req.body.production;
+    const reqPlayer = req.params['name'];
+
+    Promise.all(saveProduction(reqPlayer, production)).then((result)=>{
+      res.json(result); 
+    })
+
+  });
+
+
+
+  function getBuildings(player){
+        
+    return new Promise(function(resolve, reject) {
+
+
+        let sql = "SELECT build, name, product, map.level, production, count(*) as count, production.workers as max, SUM(map.workers) as current FROM map INNER JOIN buildings ON buildings.id = build INNER JOIN production ON build_id = build AND map.level = production.level  WHERE player_id = ? GROUP BY  map.level, build ORDER BY build, map.level DESC";
+        let inserts = [player];
+
+        sql = mysql.format(sql, inserts);
+  
+        DB.query(sql, null, function(result){
+          resolve(result);  
+        });
+
+    })
+
+  }
+
+  function saveProduction(player, production)
+  {
+    let _promises = [];
+
+    production.forEach(p => {
+
+      p.buildings.forEach(prod => {
+          
+        _promises.push(
+              new Promise(function(resolve, reject) {
+
+                let diff = prod.current % prod.count;
+                let workers = Math.floor(prod.current / prod.count);
+
+                let sql = "UPDATE map SET workers = ? WHERE player_id = ? AND build = ? AND level = ?";
+                let inserts = [workers, player, prod.build, prod.level];
+        
+                if(diff != 0)
+                {
+                  sql = "UPDATE map SET workers = ? WHERE player_id = ? AND build = ? AND level = ?;UPDATE map SET workers = ? WHERE player_id = ? AND build = ? AND level = ? LIMIT 1;";
+                  inserts = [workers, player, prod.build, prod.level, (workers+diff), player, prod.build, prod.level];
+                }
+
+                sql = mysql.format(sql, inserts);
+
+                DB.query(sql, null, function(result){
+                  resolve(result);  
+                });
+
+              })
+          )
+
+        });
+
+    });
+
+    return _promises;
+  }
+
+
   function getStorage(player){
     
     return new Promise(function(resolve, reject) {
@@ -248,13 +329,13 @@ module.exports = function(app){
       }
 
 
-      let sql = "SELECT SUM(production.production * map.workers) as perSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND build = 1 "
+      let sql = "SELECT SUM(production.production * map.workers) as perSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND (build = 1 OR build = 7) "
       + "UNION ALL "
-      + "SELECT SUM(production.production * map.workers) as ironPerSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND build = 3 "
+      + "SELECT SUM(production.production * map.workers) as ironPerSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND (build = 3 OR build = 7) "
       + "UNION ALL "
-      + "SELECT SUM(production.production * map.workers) as stonePerSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND build = 4 "
+      + "SELECT SUM(production.production * map.workers) as stonePerSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND (build = 4 OR build = 7) "
       + "UNION ALL "
-      + "SELECT SUM(production.production * map.workers) as goldPerSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND build = 5 ";
+      + "SELECT SUM(production.production * map.workers) as goldPerSec FROM map INNER JOIN production ON build_id = map.build AND production.level = map.level INNER JOIN player ON player.ID = player_id WHERE ?? = ? AND (build = 5 OR build = 7) ";
 
       sql = mysql.format(sql, inserts);
 
