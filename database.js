@@ -1,7 +1,10 @@
 var mysql   = require("mysql");
 
 var pool = mysql.createPool({
-    connLimit : 10,
+    connectionLimit : 1000,
+    connectTimeout  : 60 * 60 * 1000,
+    acquireTimeout  : 60 * 60 * 1000,
+    timeout         : 60 * 60 * 1000,
     host: process.env.DB_HOST,
     user: process.env.DB_USERNAME,
     password: process.env.DB_PASSWORD,
@@ -52,7 +55,8 @@ var DB = (function(){
                 if(conn)
                     conn.release();
                 callback(null, err);
-                console.log( err);
+                console.log(err);
+                //throw err;
             }
 
             var q = conn.query(query, params, function (err, rows) {
@@ -73,7 +77,9 @@ var DB = (function(){
                 callback(null, err);
                 if(conn)
                     conn.release();
-                console.log( err);
+
+                    console.log(err);
+                    //throw err;
             });
         });
     };

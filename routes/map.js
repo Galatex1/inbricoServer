@@ -8,20 +8,29 @@ module.exports = function (app){
         let player_ID  = request.params['player'];
         const tilesX = request.query['x'] ? request.query['x'] : 0;
         const tilesY = request.query['y'] ? request.query['y'] : 0;
-        let inserts = ["player.ID", player_ID,"player.ID", player_ID,"player.ID", player_ID, "player.ID", player_ID, "player.ID", player_ID, tilesX, tilesX, tilesY, tilesY];
 
-        if( isNaN(parseInt(player_ID)))
-        {
-            inserts = ["player.username", player_ID,"player.username", player_ID,"player.username", player_ID, "player.username", player_ID, "player.username", player_ID, tilesX, tilesX, tilesY, tilesY];
-        }
+        return new Promise(function(resolve, reject) { 
+          
+            let inserts = ["player.ID", player_ID,"player.ID", player_ID,"player.ID", player_ID, "player.ID", player_ID, "player.ID", player_ID, tilesX, tilesX, tilesY, tilesY];
 
-        sql = "SELECT map.ID, type_id, x, y, player_id, CASE WHEN ?? = ? THEN build ELSE NULL END as build, CASE WHEN ?? = ? THEN level ELSE NULL END as level, CASE WHEN ?? = ? THEN workers ELSE NULL END as workers, player.username, (SELECT x FROM map JOIN player ON map.ID = player.center WHERE ?? = ?) as subX, (SELECT y FROM map JOIN player ON Map.ID = player.center WHERE ?? = ?) as subY FROM map LEFT JOIN player ON map.player_id = player.ID HAVING (map.x BETWEEN (subX - ?) AND (subX + ?)) AND (map.y BETWEEN (subY - ? ) AND (subY + ?)) ORDER BY y, x";   
+            if( isNaN(parseInt(player_ID)))
+            {
+                inserts = ["player.username", player_ID,"player.username", player_ID,"player.username", player_ID, "player.username", player_ID, "player.username", player_ID, tilesX, tilesX, tilesY, tilesY];
+            }
+    
+            sql = "SELECT map.ID, type_id, x, y, player_id, CASE WHEN ?? = ? THEN build ELSE NULL END as build, CASE WHEN ?? = ? THEN level ELSE NULL END as level, CASE WHEN ?? = ? THEN workers ELSE NULL END as workers, player.username, (SELECT x FROM map JOIN player ON map.ID = player.center WHERE ?? = ?) as subX, (SELECT y FROM map JOIN player ON map.ID = player.center WHERE ?? = ?) as subY FROM map LEFT JOIN player ON map.player_id = player.ID HAVING (map.x BETWEEN (subX - ?) AND (subX + ?)) AND (map.y BETWEEN (subY - ? ) AND (subY + ?)) ORDER BY y, x;";   
         
-        sql = mysql.format(sql, inserts);
+            sql = mysql.format(sql, inserts);
         
-        DB.query(sql, null,function(result){
-            response.json(result);
-        });
+            DB.query(sql, null, function(result){
+              resolve(result);  
+            });
+      
+          })
+          .then((result)=>{
+            response.json(result); 
+          })
+    
 
         
     });

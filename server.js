@@ -6,18 +6,20 @@ var DB = require('./database.js');
 
 const cors = require('cors');
 
-app.use(cors(corsOptions)); 
+
 app.use(express.urlencoded());
 app.use(express.json());
+app.use(cors(corsOptions)); 
 
 
-    DB.perRow("SELECT ID FROM player LIMIT 1", null)
-    .on('result', function(result){
-        console.log("Connection to database successful");
-    })
-    .on('error', function(err){
-        console.log("error: " + err); 
-    })
+
+DB.perRow("SELECT ID FROM player LIMIT 1", null)
+.on('result', function(result){
+    console.log("Connection to database successful");
+})
+.on('error', function(err){
+    console.log("error: " + err); 
+})
 
 
 
@@ -37,7 +39,7 @@ var corsOptions = {
 // });
 
 
-app.listen(process.env.PORT || 5000, () => {
+app.listen(process.env.PORT || 8000, () => {
   console.log('Server started!');
 });
 
@@ -51,24 +53,26 @@ app.post('/login',function(request,response, next){
     var waitTill = new Date(new Date().getTime() + 0.5 * 1000);
     while(waitTill > new Date()){}
 
-    let inserts = ["player.username", request.body.username];
+    return new Promise(function(resolve, reject) {
 
-    //let sql = "SELECT ID, username, password, center, (SELECT count(*) FROM map WHERE player_id = player.ID) as tilecount FROM player WHERE username ='"+request.body.username+"'";
-    let sql = "SELECT player.ID, player.username, player.center, (SELECT count(*) FROM map WHERE player_id = player.ID) as tilecount, alli.ID as allianceID FROM player LEFT JOIN (SELECT ID, alliance.name, alliance.abbreviation, members.player FROM alliance INNER JOIN members ON alliance.ID = members.alliance_id WHERE members.player = ID) as alli ON alli.player = alli.ID WHERE ?? = ? ";
+        let inserts = ["player.username", request.body.username];
 
+        let sql = "SELECT player.ID, player.username, player.center, (SELECT count(*) FROM map WHERE player_id = player.ID) as tilecount, alli.ID as allianceID FROM player LEFT JOIN (SELECT ID, alliance.name, alliance.abbreviation, members.player FROM alliance INNER JOIN members ON alliance.ID = members.alliance_id WHERE members.player = ID) as alli ON alli.player = alli.ID WHERE ?? = ? ";
+        sql = mysql.format(sql, inserts);
 
-    sql = mysql.format(sql, inserts);
+        DB.query(sql, null, function(result){
+            if(result.length === 1)
+            {
+                resolve(result[0]);   
+            }
+            else 
+                resolve({error: "Wrong username or password"}); 
+        });
+    })
+    .then((result)=>{
+        response.json(result); 
+    })
 
-    DB.query(sql, null, function(result){
-
-        if(result.length === 1)
-        {
-            response.json(result[0]); 
-        }
-        else 
-           response.json({error: "Wrong username or password"});
-
-    }); 
 });
 
 require('./routes')(app);
@@ -78,7 +82,7 @@ let index = 0;
 function updateLoop()
 {
     processBuildingQueue().then((result)=>{
-        //console.log(result);
+       // console.log(result);
     })
     //console.log("Update", index);
     index++;
@@ -153,7 +157,7 @@ function processBuildingQueue(){
     })
 }
 
-let intervalLoop = setInterval(()=> updateLoop(), 2000);
+let intervalLoop = setInterval(()=> updateLoop(), 3000);
 
 
 

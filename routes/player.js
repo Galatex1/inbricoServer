@@ -161,7 +161,7 @@ module.exports = function(app){
     return new Promise(function(resolve, reject) {
 
 
-        let sql = "SELECT build, name, product, map.level, production, count(*) as count, production.workers as max, SUM(map.workers) as current FROM map INNER JOIN buildings ON buildings.id = build INNER JOIN production ON build_id = build AND map.level = production.level  WHERE player_id = ? GROUP BY  map.level, build ORDER BY build, map.level DESC";
+        let sql = "SELECT build, name, product, map.level, ANY_VALUE(production), count(*) as count, ANY_VALUE(production.workers) as max, SUM(map.workers) as current FROM map INNER JOIN buildings ON buildings.id = build INNER JOIN production ON build_id = build AND map.level = production.level  WHERE player_id = ? GROUP BY  map.level, build ORDER BY build, map.level DESC";
         let inserts = [player];
 
         sql = mysql.format(sql, inserts);
