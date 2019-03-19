@@ -2,7 +2,7 @@ var mysql   = require("mysql");
 
 var pool = mysql.createPool({
     connLimit : 10,
-    host: process.env.CLEARDB_DATABASE_URL,
+    host: process.env.CLEARDB_HOST,
     user: process.env.CLEARDB_USERNAME,
     password: process.env.CLEARDB_PASSWORD,
     database: process.env.CLEARDB_DATABASE,
