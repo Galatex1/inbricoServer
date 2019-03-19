@@ -1,0 +1,307 @@
+
+
+.hexagon {
+height: 94px;
+width: 81px;
+display: inline-block;
+background-color: limegreen;
+background: url("/assets/img/lowland.png") no-repeat 100% 100%; 
+/* -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%); */
+/*margin-right: -3px;*/
+vertical-align: middle;
+line-height: 81px;
+color:#222;
+font-size: 10px;
+margin-left: 2px;
+margin-top: -7px;
+font-weight: bold;
+text-align: center;
+position: relative;
+/* transition: width 0.5s linear; */
+/*padding: 10px;*/
+}
+/*.clip-wrap {
+  display: inline-block;
+  vertical-align: top;
+  padding: 10px;
+}*/
+
+ .clip-each {
+  width: 81px;
+  height: 94px;
+  position: relative;
+  background-size: 100% 100%;
+  /* background: url("../img/hexShadow.png"); */
+}
+
+.hexagon:hover .clip-each{
+    background: url("/assets/img/highlight.png") no-repeat 100% 100%; 
+}
+
+/*
+.clip-each:after {
+  content: "";
+  position: absolute;
+  background: rgba(255,255,255,0);
+}
+
+.clip-each, .clip-each:after {
+    -webkit-clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+    /*clip-path: url("#octagon-clip");
+}*/
+
+
+/* .box-shadow-inset {	
+  background-color: #000; 
+  background-color: rgba(0,0,0,0.25);
+  -webkit-filter: blur(3px);
+  filter: blur(3px);
+}
+.box-shadow-inset:after {	
+  background: rgba(255,255,255,0.2);
+  top: 3px;
+  left: 3px;
+  right: 3px;
+  bottom: 3px;
+} */ 
+
+
+/* .border-overlay{
+    position: absolute;
+    top: 24px;
+    left: 0px;
+    height: 47px;
+    width: 61px;
+    border-left: 10px solid transparent;
+    border-right: 10px solid transparent; 
+}
+
+.border-overlay:first-of-type{
+    transform: rotate(60deg);
+
+}
+.border-overlay:last-of-type{
+    transform: rotate(120deg);
+} */
+
+.border-overlay{
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    height: 100%;
+    width: 100%;
+    /* filter: brightness(40%) sepia(100%) hue-rotate(-90deg) saturate(1000%) contrast(1000); */
+}
+
+
+.border-overlay.top-left{
+    background: url("/assets/img/borders/b-top-left.png");
+}
+
+
+.border-overlay.top-right{
+    background: url("/assets/img/borders/b-top-right.png");
+}
+
+.border-overlay.right{
+    background: url("/assets/img/borders/b-right.png");
+}
+
+.border-overlay.bottom-right{
+    background: url("/assets/img/borders/b-bottom-right.png");
+}
+
+.border-overlay.bottom-left{
+    background: url("/assets/img/borders/b-bottom-left.png");
+}
+
+.border-overlay.left{
+    background: url("/assets/img/borders/b-left.png");
+}
+
+
+
+.orange{
+    background-color: orange;
+}
+
+.limegreen{
+   background-color: limegreen; 
+}
+
+.HexRow{
+width:100%;
+/* margin: auto; */
+margin: 0;
+padding: 0;
+display: inline-block;
+white-space: nowrap;
+position: relative;
+
+}
+
+.HexRow:nth-child(even){
+margin-top: -14px;
+margin-bottom: -14px;
+}
+
+.HexRow:nth-child(even) .hexagon:first-child{
+    
+    
+    /*transform:translateX(calc(0% ));  */
+    margin-left: 43px;
+        
+}
+
+
+ /* .hexagon:hover{
+    background-color: rgba(255, 255, 255, 0.3);
+}  */
+
+#hexMap{
+    overflow: auto;
+    width:80%;
+    /*height: 100%;*/
+    align-items: stretch;
+    white-space: nowrap;
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0,255,0,0.5);
+}
+
+    /* Let's get this party started */
+#hexMap::-webkit-scrollbar {
+    width: 12px;
+}
+
+/* Track */
+#hexMap::-webkit-scrollbar-track{
+    box-shadow: inset 0 0 6px rgba(255,255,255,0.6);
+    -webkit-border-radius: 10px;
+    border-radius: 10px;
+    margin:5px;
+}
+
+/* Handle */
+#hexMap::-webkit-scrollbar-thumb{
+    -webkit-border-radius: 10px;
+    border-radius: 13px;
+    background: rgba(200,200,200,0.8);
+    box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+}
+#hexMap::-webkit-scrollbar-thumb:window-inactive{
+     background: rgba(200,200,200,0.2);
+}
+
+#hexMap::-webkit-scrollbar-corner { background: rgba(0,0,0,0.0); }
+
+.iconContainer{
+    display: block;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    /* height:60px; */
+    /* max-width: 60px; */
+    z-index : 1000;
+    text-align:  center;
+}
+
+.resIcon{
+    display:inline-block;
+    position: relative;
+    padding: 1px 4px;
+    height: 30px;
+    background-color: rgba(255, 255, 255, 0.75);
+    border-radius: 15px;
+    border: 1px solid #000;
+    vertical-align: top;
+    line-height: 30px;
+    margin-right: 2px;
+    cursor: pointer;
+}
+
+.resIcon:hover{
+    background-color: rgba(255, 255, 255, 1);
+}
+
+/* one item */
+.resIcon:first-child:nth-last-child(1) {
+
+    top: 50%;
+    transform: translate(0%,-50%);
+}
+
+/* two items */
+.resIcon:first-child:nth-last-child(2),
+.resIcon:first-child:nth-last-child(2) ~ li {
+    top: 50%;
+    transform: translate(0%,-50%);
+}
+.resIcon:last-child:nth-last-child(1),
+.resIcon:last-child:nth-last-child(1) ~ li {
+    top: 50%;
+    transform: translate(0%,-50%);
+}
+
+
+
+/* three items */
+.resIcon:first-child:nth-last-child(3),
+.resIcon:first-child:nth-last-child(3) ~ li {
+    top: 31%;
+    transform: translate(0%,-50%);
+}
+
+.resIcon:nth-child(2):nth-last-child(2),
+.resIcon:nth-child(2):nth-last-child(2) ~ li {
+    top: 31%;
+    transform: translate(0%,-50%);
+}
+
+.resIcon:nth-child(3):nth-last-child(1),
+.resIcon:nth-child(3):nth-last-child(1) ~ li {
+    top: 78%;
+    left: -77%;
+    transform: translate(0%,-50%);
+}
+
+.resIcon img{
+    vertical-align: middle;
+    height:20px;
+    width:20px;
+}
+
+.resIcon .buildLevel{
+    font-size: 1.5em;
+    vertical-align: middle;
+
+}
+
+.type-1{
+    background: url("/assets/img/water.png") no-repeat 100% 100%;
+}
+.type-2{
+    background: url("/assets/img/lowland.png") no-repeat 100% 100%;
+}
+.type-3{
+    background: url("/assets/img/fertile2.png") no-repeat 100% 100%;
+}
+.type-4{
+    background: url("/assets/img/forrest.png") no-repeat 100% 100%;
+}
+.type-5{
+    background: url("/assets/img/mountains.png") no-repeat 100% 100%;
+}
+
+/* .hexagon:not([player='0']){
+    background: rgb(115, 255, 0, 0.3);
+} */
+
+
+
+
+
+
