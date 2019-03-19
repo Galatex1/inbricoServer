@@ -34,11 +34,10 @@ app.use(cors(corsOptions));
 // });
 
 
-app.listen(8000, () => {
+app.listen(process.env.PORT || 5000, () => {
   console.log('Server started!');
 });
 
-app.post('/',function(request,response, next){});
 
 app.get('/', function(req, res) {
     res.sendFile(__dirname + '/public/index.html');
