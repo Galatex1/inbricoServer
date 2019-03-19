@@ -2,10 +2,10 @@ var mysql   = require("mysql");
 
 var pool = mysql.createPool({
     connLimit : 10,
-    host: "localhost",
-    user: "root",
-    password: "root",
-    database: "inbrico",
+    host: process.env.CLEARDB_DATABASE_URL,
+    user: process.env.CLEARDB_USERNAME,
+    password: process.env.CLEARDB_PASSWORD,
+    database: process.env.CLEARDB_DATABASE,
     multipleStatements: true
 });
 
@@ -19,7 +19,7 @@ var DB = (function(){
         pool.getConnection(function (err, conn) {
             if (err) {
                 if (eventNameIndex.error) {
-                    eventNameIndex.error(); n
+                    eventNameIndex.error();
                 }
             }
             if (conn) { 
