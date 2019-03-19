@@ -7,6 +7,11 @@ var DB = require('./database.js');
 const cors = require('cors');
 
 
+var corsOptions = {
+    origin: '*',
+    optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
+  }
+
 app.use(express.urlencoded());
 app.use(express.json());
 app.use(cors(corsOptions)); 
@@ -23,10 +28,7 @@ DB.perRow("SELECT ID FROM player LIMIT 1", null)
 
 
 
-var corsOptions = {
-  origin: '*',
-  optionsSuccessStatus: 200 // some legacy browsers (IE11, various SmartTVs) choke on 204 
-}
+
 
 
 
